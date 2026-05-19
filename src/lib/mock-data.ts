@@ -1,0 +1,103 @@
+import type { Address, Profile } from './types'
+
+export const mockProfile: Profile = {
+  id: 'mock-admin-id',
+  email: 'admin@velopak.dk',
+  full_name: 'Test Admin',
+  role: 'admin',
+  created_at: new Date().toISOString(),
+}
+
+export const mockAddresses: Address[] = [
+  {
+    id: '1',
+    company_name: 'Novo Nordisk',
+    street_address: 'Novo Allé 1',
+    city: 'Bagsværd',
+    zip: '2880',
+    notes: 'Levering ved bagindgang. Ring på klokken til venstre.',
+    google_maps_url: 'https://maps.google.com/?q=Novo+Allé+1,+2880+Bagsværd',
+    created_by: 'mock-admin-id',
+    created_at: '2025-01-15T10:00:00Z',
+    updated_at: '2025-01-15T10:00:00Z',
+    photos: [
+      {
+        id: 'p1',
+        address_id: '1',
+        storage_path: '/mock/novo-entrance.jpg',
+        caption: 'Bagindgang fra parkeringspladsen',
+        sort_order: 0,
+        created_at: '2025-01-15T10:00:00Z',
+      },
+    ],
+  },
+  {
+    id: '2',
+    company_name: 'Danske Bank HQ',
+    street_address: 'Holmens Kanal 2-12',
+    city: 'København K',
+    zip: '1092',
+    notes: 'Reception i stueetagen. Vis ID ved ankomst.',
+    google_maps_url: 'https://maps.google.com/?q=Holmens+Kanal+2,+1092+København',
+    created_by: 'mock-admin-id',
+    created_at: '2025-02-01T08:30:00Z',
+    updated_at: '2025-02-01T08:30:00Z',
+    photos: [],
+  },
+  {
+    id: '3',
+    company_name: 'Zendesk Copenhagen',
+    street_address: 'Snaregade 12',
+    city: 'København K',
+    zip: '1205',
+    notes: 'Kælder-indgang til højre for hoveddøren. Kode: 4521#',
+    google_maps_url: 'https://maps.google.com/?q=Snaregade+12,+1205+København',
+    created_by: 'mock-admin-id',
+    created_at: '2025-02-10T14:00:00Z',
+    updated_at: '2025-03-05T09:15:00Z',
+    photos: [],
+  },
+  {
+    id: '4',
+    company_name: 'Ørsted A/S',
+    street_address: 'Nesa Allé 1',
+    city: 'Gentofte',
+    zip: '2820',
+    notes: 'Pakkerum ved siden af kantinen. Spørg i receptionen.',
+    google_maps_url: 'https://maps.google.com/?q=Nesa+Allé+1,+2820+Gentofte',
+    created_by: 'mock-admin-id',
+    created_at: '2025-03-01T11:00:00Z',
+    updated_at: '2025-03-01T11:00:00Z',
+    photos: [],
+  },
+  {
+    id: '5',
+    company_name: 'Unity Technologies',
+    street_address: 'Niels Hemmingsens Gade 24',
+    city: 'København K',
+    zip: '1153',
+    notes: 'Ring til kontaktperson. Ingen fast reception.',
+    google_maps_url: 'https://maps.google.com/?q=Niels+Hemmingsens+Gade+24,+1153+København',
+    created_by: 'mock-admin-id',
+    created_at: '2025-03-15T16:00:00Z',
+    updated_at: '2025-03-15T16:00:00Z',
+    photos: [],
+  },
+  {
+    id: '6',
+    company_name: 'Mærsk Tower (KU)',
+    street_address: 'Blegdamsvej 3B',
+    city: 'København N',
+    zip: '2200',
+    notes: 'Brug indgang C. Elevator til 5. sal. Laboratoriet til venstre.',
+    google_maps_url: 'https://maps.google.com/?q=Blegdamsvej+3B,+2200+København',
+    created_by: 'mock-admin-id',
+    created_at: '2025-04-01T09:00:00Z',
+    updated_at: '2025-04-01T09:00:00Z',
+    photos: [],
+  },
+]
+
+export function isMockMode(): boolean {
+  return process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
+}
