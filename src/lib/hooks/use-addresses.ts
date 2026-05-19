@@ -103,7 +103,7 @@ export function useAddress(id: string) {
   const [address, setAddress] = useState<Address | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
+  const fetchAddress = useCallback(async () => {
     if (isMockMode()) {
       const found = mockAddresses.find(a => a.id === id) || null
       setAddress(found)
@@ -112,23 +112,24 @@ export function useAddress(id: string) {
     }
 
     const supabase = createClient()
-    async function fetch() {
-      const { data, error } = await supabase
-        .from('addresses')
-        .select(`
-          *,
-          photos:address_photos(*)
-        `)
-        .eq('id', id)
-        .single()
+    const { data, error } = await supabase
+      .from('addresses')
+      .select(`
+        *,
+        photos:address_photos(*)
+      `)
+      .eq('id', id)
+      .single()
 
-      if (!error && data) {
-        setAddress(data)
-      }
-      setLoading(false)
+    if (!error && data) {
+      setAddress(data)
     }
-    fetch()
+    setLoading(false)
   }, [id])
 
-  return { address, loading }
+  useEffect(() => {
+    fetchAddress()
+  }, [fetchAddress])
+
+  return { address, loading, refetch: fetchAddress }
 }

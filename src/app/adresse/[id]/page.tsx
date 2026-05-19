@@ -18,7 +18,7 @@ export default function AddressDetailPage() {
   const router = useRouter()
   const id = params.id as string
   const { isAdmin } = useAuth()
-  const { address, loading } = useAddress(id)
+  const { address, loading, refetch } = useAddress(id)
   const { updateAddress, deleteAddress } = useAddresses()
   const [editing, setEditing] = useState(false)
   const [formLoading, setFormLoading] = useState(false)
@@ -213,7 +213,7 @@ export default function AddressDetailPage() {
               {isAdmin && (
                 <PhotoUpload
                   addressId={address.id}
-                  onUploadComplete={() => router.refresh()}
+                  onUploadComplete={() => refetch()}
                 />
               )}
             </div>
