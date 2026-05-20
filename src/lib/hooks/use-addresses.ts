@@ -122,6 +122,13 @@ export function useAddress(id: string) {
       .single()
 
     if (!error && data) {
+      // Build public URLs for photos
+      if (data.photos) {
+        data.photos = data.photos.map((photo: { storage_path: string; [key: string]: unknown }) => ({
+          ...photo,
+          url: supabase.storage.from('address-photos').getPublicUrl(photo.storage_path).data.publicUrl,
+        }))
+      }
       setAddress(data)
     }
     setLoading(false)
