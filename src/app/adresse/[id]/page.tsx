@@ -61,6 +61,25 @@ export default function AddressDetailPage() {
     )
   }
 
+  const handleDeletePhoto = async (photoId: string, storagePath: string) => {
+    if (!confirm('Slet dette foto?')) return
+
+    try {
+      const supabase = (await import('@/lib/supabase/client')).createClient()
+
+      // Delete from storage
+      await supabase.storage.from('address-photos').remove([storagePath])
+
+      // Delete from database
+      await supabase.from('address_photos').delete().eq('id', photoId)
+
+      // Refresh
+      refetch()
+    } catch (err) {
+      console.error('Delete photo failed:', err)
+    }
+  }
+
   const handleUpdate = async (data: AddressFormData) => {
     setFormLoading(true)
     setFormError('')
@@ -186,7 +205,7 @@ export default function AddressDetailPage() {
               {address.photos && address.photos.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {address.photos.map((photo) => (
-                    <div key={photo.id} className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900">
+                    <div key={photo.id} className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900 relative group">
                       <div className="aspect-video bg-gray-800 flex items-center justify-center text-gray-600">
                         {photo.url ? (
                           <img
@@ -198,6 +217,15 @@ export default function AddressDetailPage() {
                           <span className="text-sm">📷 {photo.storage_path}</span>
                         )}
                       </div>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeletePhoto(photo.id, photo.storage_path)}
+                          className="absolute top-2 right-2 p-2 bg-black/70 hover:bg-red-600 rounded-full transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+                          title="Slet foto"
+                        >
+                          <Trash2 className="w-4 h-4 text-white" />
+                        </button>
+                      )}
                       {photo.caption && (
                         <p className="px-3 py-2 text-sm text-gray-400 bg-gray-900">
                           {photo.caption}
