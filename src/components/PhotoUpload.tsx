@@ -34,9 +34,13 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
   }
 
   const handleUpload = async () => {
-    if (!fileRef.current?.files?.[0]) return
+    setError('DEBUG: handleUpload kaldt')
+    if (!fileRef.current?.files?.[0]) {
+      setError('DEBUG: ingen fil valgt')
+      return
+    }
     setUploading(true)
-    setError('')
+    setError('DEBUG: starter upload...')
 
     try {
       if (isMockMode()) {
