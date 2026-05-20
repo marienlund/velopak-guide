@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Camera, Upload, X, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { isMockMode } from '@/lib/mock-data'
@@ -13,34 +13,39 @@ interface PhotoUploadProps {
 export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [caption, setCaption] = useState('')
-  const [error, setError] = useState('')
-  const fileRef = useRef<HTMLInputElement>(null)
+  const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setError('')
+    setMessage('')
+    setIsError(false)
 
-    // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('Filen er for stor. Maks 10 MB.')
+      setMessage('Filen er for stor. Maks 10 MB.')
+      setIsError(true)
       return
     }
 
+    setSelectedFile(file)
     const reader = new FileReader()
     reader.onloadend = () => setPreview(reader.result as string)
     reader.readAsDataURL(file)
   }
 
   const handleUpload = async () => {
-    setError('DEBUG: handleUpload kaldt')
-    if (!fileRef.current?.files?.[0]) {
-      setError('DEBUG: ingen fil valgt')
+    if (!selectedFile) {
+      setMessage('Ingen fil valgt. Prøv at vælge billedet igen.')
+      setIsError(true)
       return
     }
+
     setUploading(true)
-    setError('DEBUG: starter upload...')
+    setMessage('')
+    setIsError(false)
 
     try {
       if (isMockMode()) {
@@ -51,22 +56,19 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
       }
 
       const supabase = createClient()
-      const file = fileRef.current.files[0]
-      const ext = file.name.split('.').pop()
+      const ext = selectedFile.name.split('.').pop()
       const path = `${addressId}/${crypto.randomUUID()}.${ext}`
 
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('address-photos')
-        .upload(path, file)
+        .upload(path, selectedFile)
 
       if (uploadError) {
-        console.error('Storage upload error:', uploadError)
-        setError(`Storage fejl: ${uploadError.message}`)
+        setMessage(`Storage fejl: ${uploadError.message}`)
+        setIsError(true)
         setUploading(false)
         return
       }
-
-      setError('✅ Storage OK: ' + path)
 
       const { error: dbError } = await supabase
         .from('address_photos')
@@ -78,37 +80,43 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
         })
 
       if (dbError) {
-        console.error('DB insert error:', dbError)
-        setError(`Database fejl: ${dbError.message}`)
+        setMessage(`Database fejl: ${dbError.message}`)
+        setIsError(true)
         setUploading(false)
         return
       }
 
-      setError('✅ ALT OK — billedet er gemt!')
+      setMessage('✅ Billedet er gemt!')
+      setIsError(false)
       onUploadComplete()
-      reset()
+      resetForm()
     } catch (err) {
-      console.error('Upload failed:', err)
       const msg = err instanceof Error ? err.message : 'Ukendt fejl'
-      setError(`Upload mislykkedes: ${msg}`)
+      setMessage(`Upload mislykkedes: ${msg}`)
+      setIsError(true)
     } finally {
       setUploading(false)
     }
   }
 
-  const reset = () => {
+  const resetForm = () => {
     setPreview(null)
+    setSelectedFile(null)
     setCaption('')
-    setError('')
-    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const reset = () => {
+    resetForm()
+    setMessage('')
+    setIsError(false)
   }
 
   return (
     <div className="space-y-3">
-      {error && (
-        <div className={`p-4 rounded-xl text-sm font-medium ${error.startsWith('✅') ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+      {message && (
+        <div className={`p-4 rounded-xl text-sm font-medium ${isError ? 'bg-red-500/10 border border-red-500/20 text-red-400' : 'bg-green-500/20 border border-green-500/30 text-green-300'}`}>
           <AlertTriangle className="w-4 h-4 shrink-0 inline mr-2" />
-          {error}
+          {message}
         </div>
       )}
 
@@ -118,7 +126,6 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
           <span className="text-sm text-gray-400 font-medium">Tryk for at tilføje foto</span>
           <span className="text-xs text-gray-600">JPG, PNG — maks 10 MB</span>
           <input
-            ref={fileRef}
             type="file"
             accept="image/*"
             onChange={handleFile}
