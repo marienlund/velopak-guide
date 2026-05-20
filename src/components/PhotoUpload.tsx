@@ -51,11 +51,18 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
       const ext = file.name.split('.').pop()
       const path = `${addressId}/${crypto.randomUUID()}.${ext}`
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from('address-photos')
         .upload(path, file)
 
-      if (uploadError) throw uploadError
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError)
+        setError(`Storage fejl: ${uploadError.message}`)
+        setUploading(false)
+        return
+      }
+
+      console.log('Storage upload OK:', uploadData)
 
       const { error: dbError } = await supabase
         .from('address_photos')
@@ -66,13 +73,20 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
           sort_order: 0,
         })
 
-      if (dbError) throw dbError
+      if (dbError) {
+        console.error('DB insert error:', dbError)
+        setError(`Database fejl: ${dbError.message}`)
+        setUploading(false)
+        return
+      }
 
+      console.log('DB insert OK')
       onUploadComplete()
       reset()
     } catch (err) {
       console.error('Upload failed:', err)
-      setError('Upload mislykkedes. Prøv igen.')
+      const msg = err instanceof Error ? err.message : 'Ukendt fejl'
+      setError(`Upload mislykkedes: ${msg}`)
     } finally {
       setUploading(false)
     }
