@@ -62,7 +62,7 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
         return
       }
 
-      alert('Storage upload OK: ' + JSON.stringify(uploadData))
+      setError('✅ Storage OK: ' + path)
 
       const { error: dbError } = await supabase
         .from('address_photos')
@@ -80,7 +80,7 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
         return
       }
 
-      alert('DB insert OK - billedet er gemt!')
+      setError('✅ ALT OK — billedet er gemt!')
       onUploadComplete()
       reset()
     } catch (err) {
@@ -102,8 +102,8 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
   return (
     <div className="space-y-3">
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
+        <div className={`p-4 rounded-xl text-sm font-medium ${error.startsWith('✅') ? 'bg-green-500/20 border border-green-500/30 text-green-300' : 'bg-red-500/10 border border-red-500/20 text-red-400'}`}>
+          <AlertTriangle className="w-4 h-4 shrink-0 inline mr-2" />
           {error}
         </div>
       )}
