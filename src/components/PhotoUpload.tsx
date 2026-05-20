@@ -62,7 +62,7 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
         return
       }
 
-      console.log('Storage upload OK:', uploadData)
+      alert('Storage upload OK: ' + JSON.stringify(uploadData))
 
       const { error: dbError } = await supabase
         .from('address_photos')
@@ -80,7 +80,7 @@ export default function PhotoUpload({ addressId, onUploadComplete }: PhotoUpload
         return
       }
 
-      console.log('DB insert OK')
+      alert('DB insert OK - billedet er gemt!')
       onUploadComplete()
       reset()
     } catch (err) {
