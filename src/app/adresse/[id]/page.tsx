@@ -169,13 +169,6 @@ export default function AddressDetailPage() {
                   {address.street_address}, {address.zip} {address.city}
                 </p>
 
-                {address.notes && (
-                  <div className="flex items-start gap-2 text-gray-300">
-                    <StickyNote className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                    <p className="whitespace-pre-wrap">{address.notes}</p>
-                  </div>
-                )}
-
                 {address.google_maps_url && (
                   <a
                     href={address.google_maps_url}
@@ -198,8 +191,18 @@ export default function AddressDetailPage() {
               </p>
             </div>
 
-            {/* Photos section */}
+            {/* Notes & Photos section */}
             <div className="space-y-4">
+              {address.notes && (
+                <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 sm:p-6">
+                  <h2 className="text-lg font-semibold text-gray-300 flex items-center gap-2 mb-3">
+                    <StickyNote className="w-5 h-5 text-green-500" />
+                    Noter
+                  </h2>
+                  <p className="whitespace-pre-wrap text-gray-300 leading-relaxed">{address.notes}</p>
+                </div>
+              )}
+
               <h2 className="text-lg font-semibold text-gray-300">Fotos</h2>
 
               {address.photos && address.photos.length > 0 ? (
