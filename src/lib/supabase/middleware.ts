@@ -38,9 +38,11 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
+  // Only require login for /admin routes
+  // All other pages (address list, detail) are public for couriers
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login')
+    request.nextUrl.pathname.startsWith('/admin')
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
